@@ -13,6 +13,8 @@ import MBProgressHUD
 class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var networkErrorView: UIView!
+    @IBOutlet weak var networkErrorText: UITextField!
     
     var movies: [NSDictionary]?
     
@@ -28,6 +30,13 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         // add refresh control to table view
         tableView.insertSubview(refreshControl, at: 0)
         
+        
+        networkErrorText.leftViewMode = UITextFieldViewMode.always
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+        let image = UIImage(named: "Error")
+        imageView.image = image
+        networkErrorText.leftView = imageView
+        
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
         let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")!
         let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
@@ -38,12 +47,18 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             // hide HUD when responce is received
             MBProgressHUD.hide(for: self.view, animated: true)
             
+            if error != nil {
+                self.tableView.isHidden = true
+            } else {
+                self.networkErrorView.isHidden = true
+            }
+            
             // remainder of response handling
             if let data = data {
                 if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
                     print(dataDictionary)
                     
-                    self.movies = dataDictionary["results"] as! [NSDictionary]
+                    self.movies = (dataDictionary["results"] as! [NSDictionary])
                     self.tableView.reloadData()
                 }
             }
@@ -91,7 +106,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             if let data = data {
                 if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
                     
-                    self.movies = dataDictionary["results"] as! [NSDictionary]
+                    self.movies = (dataDictionary["results"] as! [NSDictionary])
                     self.tableView.reloadData()
                     refreshControl.endRefreshing()
                 }
