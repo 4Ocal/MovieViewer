@@ -10,18 +10,22 @@ import UIKit
 import AFNetworking
 import MBProgressHUD
 
-class MoviesViewController: UIViewController, UICollectionViewDataSource {
+class MoviesViewController: UIViewController, UICollectionViewDataSource, UISearchBarDelegate {
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var networkErrorView: UIView!
     @IBOutlet weak var networkErrorText: UITextField!
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var movies: [NSDictionary]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // Do any additional setup after loading the view.
+        
         collectionView.dataSource = self
+        searchBar.delegate = self
         
         // initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
@@ -29,22 +33,28 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource {
         // add refresh control to table view
         collectionView.insertSubview(refreshControl, at: 0)
         
-        
+        // network error
         networkErrorText.leftViewMode = UITextFieldViewMode.always
         let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
         let image = UIImage(named: "Error")
         imageView.image = image
         networkErrorText.leftView = imageView
         
+        // display HUD before request
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        request()
+        // hide HUD when responce is received
+        MBProgressHUD.hide(for: self.view, animated: true)
+        
+    }
+    
+    func request() {
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
         let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")!
         let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
         let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
-        // display HUD before request
-        MBProgressHUD.showAdded(to: self.view, animated: true)
+        
         let task: URLSessionDataTask = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
-            // hide HUD when responce is received
-            MBProgressHUD.hide(for: self.view, animated: true)
             
             if error != nil {
                 self.collectionView.isHidden = true
@@ -63,8 +73,6 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource {
             }
         }
         task.resume()
-
-        // Do any additional setup after loading the view.
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -86,27 +94,30 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource {
             cell.posterView.setImageWith(posterUrl)
         }
         
-        print("row \(indexPath.row)")
+        //print("row \(indexPath.row)")
         return cell
     }
     
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
-        let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")!
-        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
-        let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
-        let task: URLSessionDataTask = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
-            
-            if let data = data {
-                if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
-                    
-                    self.movies = (dataDictionary["results"] as! [NSDictionary])
-                    self.collectionView.reloadData()
-                    refreshControl.endRefreshing()
-                }
-            }
-        }
-        task.resume()
+        request()
+        refreshControl.endRefreshing()
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        movies = searchText.isEmpty ? movies : movies?.filter({(movie: NSDictionary) -> Bool in
+            return (movie["title"] as! String).range(of: searchText, options: .caseInsensitive) != nil
+        })
+        collectionView.reloadData()
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        self.searchBar.showsCancelButton = true
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
     }
 
     override func didReceiveMemoryWarning() {
