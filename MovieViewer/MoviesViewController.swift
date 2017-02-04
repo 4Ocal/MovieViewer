@@ -10,9 +10,9 @@ import UIKit
 import AFNetworking
 import MBProgressHUD
 
-class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class MoviesViewController: UIViewController, UICollectionViewDataSource {
 
-    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var networkErrorView: UIView!
     @IBOutlet weak var networkErrorText: UITextField!
     
@@ -21,14 +21,13 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.dataSource = self
-        tableView.delegate = self
+        collectionView.dataSource = self
         
         // initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
         // add refresh control to table view
-        tableView.insertSubview(refreshControl, at: 0)
+        collectionView.insertSubview(refreshControl, at: 0)
         
         
         networkErrorText.leftViewMode = UITextFieldViewMode.always
@@ -48,7 +47,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             MBProgressHUD.hide(for: self.view, animated: true)
             
             if error != nil {
-                self.tableView.isHidden = true
+                self.collectionView.isHidden = true
             } else {
                 self.networkErrorView.isHidden = true
             }
@@ -59,7 +58,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
                     print(dataDictionary)
                     
                     self.movies = (dataDictionary["results"] as! [NSDictionary])
-                    self.tableView.reloadData()
+                    self.collectionView.reloadData()
                 }
             }
         }
@@ -68,29 +67,24 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         // Do any additional setup after loading the view.
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let movies = movies {
             return movies.count
         } else {
             return 0
         }
+        
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell
-        
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCell", for: indexPath) as! MovieCell
         let movie = movies![indexPath.row]
-        let title = movie["title"] as! String
-        let overview = movie["overview"] as! String
         if let posterPath = movie["poster_path"] as? String {
             let baseUrl = "https://image.tmdb.org/t/p/"
             let size = "w342"
             let posterUrl = URL(string: baseUrl + size + posterPath)!
             cell.posterView.setImageWith(posterUrl)
         }
-        
-        cell.titleLabel.text = title
-        cell.overviewLabel.text = overview
         
         print("row \(indexPath.row)")
         return cell
@@ -107,7 +101,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
                 if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
                     
                     self.movies = (dataDictionary["results"] as! [NSDictionary])
-                    self.tableView.reloadData()
+                    self.collectionView.reloadData()
                     refreshControl.endRefreshing()
                 }
             }
@@ -132,3 +126,4 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     */
 
 }
+
