@@ -18,6 +18,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
     @IBOutlet weak var searchBar: UISearchBar!
     
     var movies: [NSDictionary]?
+    var filtered: [NSDictionary]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,6 +27,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
         
         collectionView.dataSource = self
         searchBar.delegate = self
+
         
         // initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
@@ -65,9 +67,10 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
             // remainder of response handling
             if let data = data {
                 if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
-                    print(dataDictionary)
+                    //print(dataDictionary)
                     
                     self.movies = (dataDictionary["results"] as! [NSDictionary])
+                    self.filtered = self.movies
                     self.collectionView.reloadData()
                 }
             }
@@ -76,8 +79,8 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if let movies = movies {
-            return movies.count
+        if let filtered = filtered {
+            return filtered.count
         } else {
             return 0
         }
@@ -86,7 +89,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCell", for: indexPath) as! MovieCell
-        let movie = movies![indexPath.row]
+        let movie = filtered![indexPath.row]
         if let posterPath = movie["poster_path"] as? String {
             let baseUrl = "https://image.tmdb.org/t/p/"
             let size = "w342"
@@ -104,7 +107,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        movies = searchText.isEmpty ? movies : movies?.filter({(movie: NSDictionary) -> Bool in
+        filtered = searchText.isEmpty ? movies : movies?.filter({(movie: NSDictionary) -> Bool in
             return (movie["title"] as! String).range(of: searchText, options: .caseInsensitive) != nil
         })
         collectionView.reloadData()
