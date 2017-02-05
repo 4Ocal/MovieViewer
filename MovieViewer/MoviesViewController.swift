@@ -42,11 +42,8 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
         imageView.image = image
         networkErrorText.leftView = imageView
         
-        // display HUD before request
-        MBProgressHUD.showAdded(to: self.view, animated: true)
         request()
-        // hide HUD when responce is received
-        MBProgressHUD.hide(for: self.view, animated: true)
+        
         
     }
     
@@ -56,13 +53,21 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
         let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
         let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
         
+        // display HUD before request
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        
         let task: URLSessionDataTask = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
             
             if error != nil {
                 self.collectionView.isHidden = true
+                self.networkErrorView.isHidden = false
             } else {
+                self.collectionView.isHidden = false
                 self.networkErrorView.isHidden = true
             }
+            
+            // hide HUD when responce is received
+            MBProgressHUD.hide(for: self.view, animated: true)
             
             // remainder of response handling
             if let data = data {
@@ -94,7 +99,28 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
             let baseUrl = "https://image.tmdb.org/t/p/"
             let size = "w342"
             let posterUrl = URL(string: baseUrl + size + posterPath)!
-            cell.posterView.setImageWith(posterUrl)
+            let posterRequest = URLRequest(url: posterUrl)
+            cell.posterView.setImageWith(
+                posterRequest,
+                placeholderImage: nil,
+                success: { (posterRequest, posterResponse, poster) -> Void in
+                    
+                    // posterResponse will be nill if the image is cached
+                    if posterResponse != nil {
+                        print("Image was NOT cached, fade in image")
+                        cell.posterView.alpha = 0.0
+                        cell.posterView.image = poster
+                        UIView.animate(withDuration: 0.3, animations: { () -> Void in
+                            cell.posterView.alpha = 1.0
+                        })
+                    } else {
+                        print("Image was cached so just update the image")
+                        cell.posterView.image = poster
+                    }
+                },
+                failure: { (posterRequest, posterResponse, poster) -> Void in
+            })
+
         }
         
         //print("row \(indexPath.row)")

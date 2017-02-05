@@ -2,7 +2,7 @@
 
 **MovieViewer** is a movies app using the [The Movie Database API](http://docs.themoviedb.apiary.io/#).
 
-Time spent: **7** hours spent in total
+Time spent: **8** hours spent in total
 
 ## User Stories
 
@@ -18,7 +18,7 @@ The following **optional** features are implemented:
 - [x] User sees an error message when there's a networking error.
 - [x] Movies are displayed using a CollectionView instead of a TableView.
 - [x] User can search for a movie.
-- [ ] All images fade in as they are loading.
+- [x] All images fade in as they are loading.
 - [ ] Customize the UI.
 
 The following **additional** features are implemented:
@@ -33,7 +33,7 @@ Please list two areas of the assignment you'd like to **discuss further with you
 ## Video Walkthrough 
 
 Here's a walkthrough of implemented user stories:
-<img src='http://i.imgur.com/dprr5ip.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='http://i.imgur.com/dkhClsv.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
