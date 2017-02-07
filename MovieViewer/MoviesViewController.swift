@@ -125,6 +125,12 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
 
         }
         
+        //cell.selectionStyle = .None
+        
+        let backgroundView = UIView()
+        backgroundView.backgroundColor = UIColor.blue
+        cell.selectedBackgroundView = backgroundView
+        
         //print("row \(indexPath.row)")
         return cell
     }
