@@ -32,7 +32,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
         
         // initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(refreshControlAction(_refreshControl:)), for: UIControlEvents.valueChanged)
+        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
         // add refresh control to table view
         collectionView.insertSubview(refreshControl, at: 0)
         
@@ -99,49 +99,10 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
         let movie = filtered![indexPath.row]
         if let posterPath = movie["poster_path"] as? String {
             let baseUrl = "https://image.tmdb.org/t/p/"
-            /*
             let size = "w342"
             let posterUrl = URL(string: baseUrl + size + posterPath)!
             let posterRequest = URLRequest(url: posterUrl)
-            */
-            let lowRes = "w45"
-            let highRes = "original"
-            let lowResUrl = URL(string: baseUrl + lowRes + posterPath)!
-            let highResUrl = URL(string: baseUrl + highRes + posterPath)!
-            let lowResRequest = URLRequest(url: lowResUrl)
-            let highResRequest = URLRequest(url: highResUrl)
-            cell.posterView.setImageWith(
-                lowResRequest,
-                placeholderImage: nil,
-                success: { (lowResRequest, lowResResponse, lowResPoster) -> Void in
-                    
-                    cell.posterView.alpha = 0.0
-                    cell.posterView.image = lowResPoster;
-                    
-                    UIView.animate(withDuration: 0.3, animations: { () -> Void in
-                        
-                        cell.posterView.alpha = 1.0
-                        
-                        }, completion: { (sucess) -> Void in
-                            
-                            cell.posterView.setImageWith(
-                                highResRequest,
-                                placeholderImage: nil,
-                                success: { (highResRequest, highResResponse, highResPoster) -> Void in
-             
-                                    cell.posterView.image = highResPoster;
-             
-                                },
-                                failure: { (request, response, error) -> Void in
-                                    
-                            })
-                        })
-                },
-                failure: { (request, response, error) -> Void in
-                    
-            })
-            
-            /*
+ 
             cell.posterView.setImageWith(
                 posterRequest,
                 placeholderImage: nil,
@@ -162,14 +123,14 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
                 },
                 failure: { (posterRequest, posterResponse, poster) -> Void in
             })
-            */
+            
 
         }
 
         //cell.selectionStyle = .None
         
         let backgroundView = UIView()
-        backgroundView.backgroundColor = UIColor.blue
+        backgroundView.backgroundColor = UIColor.lightGray
         cell.selectedBackgroundView = backgroundView
         
         //print("row \(indexPath.row)")

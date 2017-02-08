@@ -61,7 +61,7 @@ Describe any challenges encountered while building the app.
 
 **MovieViewer** is a movies app displaying box office and top rental DVDs using [The Movie Database API](http://docs.themoviedb.apiary.io/#).
 
-Time spent: **3** hours spent in total
+Time spent: **4** hours spent in total
 
 ## User Stories
 
@@ -73,7 +73,7 @@ The following **required** functionality is completed:
 
 The following **optional** features are implemented:
 
-- [ ] For the large poster, load the low resolution image first and then switch to the high resolution image when complete.
+- [x] For the large poster, load the low resolution image first and then switch to the high resolution image when complete.
 - [ ] Customize the navigation bar.
 
 The following **additional** features are implemented:
