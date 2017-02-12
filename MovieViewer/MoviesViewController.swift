@@ -15,11 +15,22 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var networkErrorView: UIView!
     @IBOutlet weak var networkErrorText: UITextField!
+    @IBOutlet weak var searchView: UIView!
     @IBOutlet weak var searchBar: UISearchBar!
     
     var movies: [NSDictionary]?
     var filtered: [NSDictionary]?
     var endpoint: String!
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.navigationBar.isHidden = true
+        self.searchView.isHidden = false
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        self.navigationController?.navigationBar.isHidden = false
+        self.searchView.isHidden = true
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +39,6 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
         
         collectionView.dataSource = self
         searchBar.delegate = self
-
         
         // initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
@@ -123,14 +133,16 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
                 },
                 failure: { (posterRequest, posterResponse, poster) -> Void in
             })
-            
+            let backgroundView = UIView()
+            backgroundView.backgroundColor = UIColor.black
+            cell.backgroundView = backgroundView
 
         }
 
         //cell.selectionStyle = .None
         
         let backgroundView = UIView()
-        backgroundView.backgroundColor = UIColor.lightGray
+        backgroundView.backgroundColor = UIColor.blue
         cell.selectedBackgroundView = backgroundView
         
         //print("row \(indexPath.row)")
@@ -174,7 +186,6 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UISear
         let cell = sender as! UICollectionViewCell
         let indexPath = collectionView.indexPath(for: cell)
         let movie = movies![indexPath!.row]
-        
         let detailViewController = segue.destination as! DetailViewController
         detailViewController.movie = movie
         
